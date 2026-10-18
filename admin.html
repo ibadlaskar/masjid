@@ -1,0 +1,76 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Admin – Uttar Aloicherra Jame Masjid</title><link rel="icon" href="assets/logo.svg"><link rel="stylesheet" href="assets/style.css">
+<style>#app{display:flex;min-height:100vh}#side{width:230px;background:linear-gradient(#0f6b4a,#0a4a33);color:#fff;padding:14px 10px;position:sticky;top:0;height:100vh;flex:none}
+#side .lg{text-align:center;margin-bottom:14px}#side img{width:64px;animation:fl 4s ease-in-out infinite}#side b{display:block;font-size:14px}
+#side a{display:block;padding:11px 12px;border-radius:10px;color:#fff;text-decoration:none;margin-bottom:4px;cursor:pointer;transition:.2s}#side a:hover,#side a.on{background:#ffffff26;padding-left:18px;box-shadow:inset 3px 0 var(--gold)}
+#main{flex:1;padding:16px;min-width:0;max-width:980px}#bar{display:none}
+@media(max-width:760px){#app{display:block}#side{position:fixed;left:-240px;z-index:20;transition:.3s}#side.open{left:0}#bar{display:flex;align-items:center;gap:10px;background:var(--g);color:#fff;padding:10px 14px}#bar button{background:#ffffff33}}
+.sec{display:none}.sec.on{display:block}</style></head><body>
+<div id="login" class="sky" style="min-height:100vh"><div style="max-width:380px;margin:60px auto;padding:0 14px"><div class="hero" style="padding:0 0 14px"><img src="assets/logo.svg" alt=""><h1>Admin Login</h1><p>Uttar Aloicherra Jame Masjid</p></div>
+<div class="card"><label style="margin-top:0">User ID</label><input id="lu" autocomplete="username"><label>Password</label><input id="lp" type="password" autocomplete="current-password">
+<button id="lb" style="width:100%;margin-top:14px">Login</button><div id="le" class="err"></div></div></div></div>
+
+<div id="app" class="hide"><div id="bar"><button id="mn">☰</button><b>Admin Panel</b></div>
+<nav id="side"><div class="lg"><img src="assets/logo.svg" alt=""><b>Uttar Aloicherra Jame Masjid</b><small>Admin Panel</small></div>
+<a data-s="dash">📊 Dashboard</a><a data-s="mem">👥 Members</a><a data-s="add">➕ Add / Edit Member</a><a data-s="pay">💰 Record Payment</a><a data-s="rec">🧾 All Records</a><a data-s="set">⚙ Change Password</a><a id="lo">🚪 Logout</a></nav>
+<div id="main"><div id="warn" class="card hide" style="border-top-color:var(--bad)"><b class="bad">Default password in use.</b> Please change it in “Change Password”.</div>
+
+<section class="sec" id="dash"><h2>Dashboard</h2><div class="grid" id="stats"></div></section>
+
+<section class="sec" id="mem"><div class="card"><h2>Members</h2><input id="q" placeholder="Search name or serial" style="margin-bottom:8px"><div class="scroll" id="ml"></div></div></section>
+
+<section class="sec" id="add"><div class="card"><h2 id="at">Add Member</h2>
+<div class="row"><div><label>Serial No.</label><input id="fs"></div><div><label>Monthly fee (₹)</label><input id="ff" type="number" min="1"></div></div>
+<label>Name</label><input id="fn"><div class="row"><div><label>Phone</label><input id="fp" inputmode="tel"></div><div><label>Fee starts from</label><input id="fm" type="month"></div></div>
+<div class="row" style="margin-top:14px"><button id="sv">Save Member</button><button class="s" id="cl">Clear</button></div><div id="ae" class="err"></div></div></section>
+
+<section class="sec" id="pay"><div class="card"><h2>Record Payment</h2>
+<label>Member Serial No.</label><input id="ps" list="dl"><datalist id="dl"></datalist><div id="pn" class="mut"></div>
+<label>Purpose</label><select id="pp"><option value="monthly">Monthly Subscription</option><option value="donation">Donation</option><option value="ramadan">Ramadan Donation</option></select>
+<div class="row"><div><label>Amount (₹)</label><input id="pa" type="number" min="1"></div><div><label>Date</label><input id="pd" type="date"></div></div>
+<label>Note (optional)</label><input id="pt" maxlength="80"><div class="mut" style="margin-top:6px">Only “Monthly Subscription” reduces the member’s pending balance.</div>
+<button id="pb" style="margin-top:14px;width:100%">Save Payment</button><div id="pe" class="err"></div><div id="pk"></div></div></section>
+
+<section class="sec" id="rec"><div class="card"><h2>All Payment Records</h2><div class="scroll" id="rl"></div></div></section>
+
+<section class="sec" id="set"><div class="card"><h2>Change Password</h2><label>Current password</label><input id="o" type="password"><label>New user ID (optional)</label><input id="ni"><label>New password (min 6)</label><input id="n1" type="password"><label>Repeat new password</label><input id="n2" type="password">
+<button id="cp" style="margin-top:14px">Update</button><div id="ce" class="err"></div></div></section></div></div>
+<script src="assets/common.js"></script>
+<script>
+sky($("login"));let M=[];const today=()=>new Date().toISOString().slice(0,10);
+$("lb").onclick=async()=>{try{const r=await api("login",{method:"POST",body:{id:$("lu").value.trim(),password:$("lp").value}});sessionStorage.setItem("tok",r.token);start()}catch(e){$("le").textContent=e.message}};
+$("lp").onkeydown=e=>{if(e.key==="Enter")$("lb").click()};
+$("lo").onclick=()=>{sessionStorage.removeItem("tok");location.reload()};
+$("mn").onclick=()=>$("side").classList.toggle("open");
+document.querySelectorAll("#side [data-s]").forEach(a=>a.onclick=()=>go(a.dataset.s));
+function go(s){document.querySelectorAll(".sec").forEach(e=>e.classList.toggle("on",e.id===s));document.querySelectorAll("#side [data-s]").forEach(a=>a.classList.toggle("on",a.dataset.s===s));$("side").classList.remove("open");if(s==="dash")dash()}
+async function load(){const r=await api("members");M=r.members.sort((a,b)=>a.serial.localeCompare(b.serial,0,{numeric:true}));$("warn").classList.toggle("hide",!r.def);
+ $("dl").innerHTML=M.map(d=>`<option value="${esc(d.serial)}">${esc(d.name)}</option>`).join("");lists()}
+async function start(){try{await load()}catch(e){sessionStorage.removeItem("tok");$("le").textContent="Session expired – login again";return}
+ $("login").classList.add("hide");$("app").classList.remove("hide");$("fm").value=curKey;$("pd").value=today();go("dash")}
+function dash(){let col=0,mo=0,dn=0,pend=0;M.forEach(d=>{const c=calc(d);pend+=Math.max(0,c.bal);c.all.forEach(p=>{col+=p.amt;p.purpose==="monthly"?mo+=p.amt:dn+=p.amt})});
+ const S=[["👥","Registered Members",M.length],["💰","Total Collected",col,1],["📅","Monthly Subscriptions",mo,1],["🤲","Donations (incl. Ramadan)",dn,1],["⏳","Total Pending",pend,1]];
+ $("stats").innerHTML=S.map(s=>`<div class="card" style="margin:0"><div style="font-size:26px">${s[0]}</div><div class="mut">${s[1]}</div><div class="big ${s[1]=="Total Pending"?"bad":""}" data-v="${s[2]}" data-m="${s[3]||""}">0</div></div>`).join("");
+ $("stats").querySelectorAll("[data-v]").forEach(e=>countUp(e,+e.dataset.v,e.dataset.m))}
+function lists(){const q=$("q").value.toLowerCase();
+ $("ml").innerHTML=`<table><tr><th>Serial</th><th>Name</th><th>Phone</th><th>Fee</th><th>Pending</th><th></th></tr>${M.filter(d=>(d.serial+d.name).toLowerCase().includes(q)).map(d=>{const c=calc(d);return`<tr><td>${esc(d.serial)}</td><td>${esc(d.name)}</td><td>${esc(d.phone)}</td><td>${INR(d.fee)}</td><td class="${c.bal>0?"bad":"ok"}">${INR(Math.max(0,c.bal))}</td>
+ <td><button class="s" onclick="ed('${esc(d.serial)}')">Edit</button> <button class="d" onclick="rm('${esc(d.serial)}')">Delete</button></td></tr>`}).join("")}</table>`;
+ const all=M.flatMap(d=>d.payments.map(p=>({...p,d}))).sort((a,b)=>b.ts-a.ts);
+ $("rl").innerHTML=all.length?`<table><tr><th>Receipt</th><th>Date</th><th>Member</th><th>Purpose</th><th>Amount</th><th></th></tr>${all.map(p=>`<tr><td>${p.id}</td><td>${p.date}</td><td>#${esc(p.d.serial)} ${esc(p.d.name)}</td><td>${PUR[p.purpose]}</td><td>${INR(p.amt)}</td>
+ <td><button class="s" onclick="rc('${esc(p.d.serial)}','${p.id}')">⬇</button> <button class="d" onclick="dp('${esc(p.d.serial)}','${p.id}')">✕</button></td></tr>`).join("")}</table>`:'<div class="mut">No payments yet.</div>'}
+$("q").oninput=lists;
+function rc(s,id){const d=M.find(x=>x.serial===s),p=d.payments.find(x=>x.id===id);receipt({no:p.id,name:d.name,serial:d.serial,amt:p.amt,date:p.date,purpose:PUR[p.purpose]+(p.note?" – "+p.note:"")})}
+async function dp(s,id){if(confirm("Delete this payment record "+id+"?")){await api(`payments?serial=${s}&id=${id}`,{method:"DELETE"});await load()}}
+async function rm(s){if(confirm("Delete member #"+s+" and ALL their records? This cannot be undone.")){await api("members?serial="+s,{method:"DELETE"});await load()}}
+let edit=false;
+function clr(){edit=false;["fs","ff","fn","fp"].forEach(i=>$(i).value="");$("fs").disabled=false;$("fm").value=curKey;$("at").textContent="Add Member";$("ae").textContent=""}
+$("cl").onclick=clr;
+function ed(s){const d=M.find(x=>x.serial===s);edit=true;$("fs").value=d.serial;$("fs").disabled=true;$("ff").value=d.fee;$("fn").value=d.name;$("fp").value=d.phone;$("fm").value=d.start;$("at").textContent="Edit Member #"+s;go("add")}
+$("sv").onclick=async()=>{try{await api("members",{method:"POST",body:{serial:$("fs").value,name:$("fn").value,phone:$("fp").value,fee:$("ff").value,start:$("fm").value,edit}});clr();await load();go("mem")}catch(e){$("ae").textContent=e.message}};
+$("ps").oninput=()=>{const d=M.find(x=>x.serial===$("ps").value.trim());$("pn").innerHTML=d?`<b>${esc(d.name)}</b> · Pending ${INR(Math.max(0,calc(d).bal))}`:""};
+$("pb").onclick=async()=>{$("pe").textContent="";$("pk").innerHTML="";try{const r=await api("payments",{method:"POST",body:{serial:$("ps").value.trim(),amt:$("pa").value,date:$("pd").value,purpose:$("pp").value,note:$("pt").value}});
+ await load();$("pa").value="";$("pt").value="";$("pn").textContent="";window._p=r;$("pk").innerHTML=`<div class="ok" style="margin:10px 0">✓ Saved. Receipt ${r.payment.id}</div><button onclick="rc('${r.member.serial}','${r.payment.id}')">⬇ Download Receipt</button>`}catch(e){$("pe").textContent=e.message}};
+$("cp").onclick=async()=>{if($("n1").value!==$("n2").value){$("ce").textContent="New passwords do not match";return}
+ try{const r=await api("password",{method:"POST",body:{oldPassword:$("o").value,newPassword:$("n1").value,newId:$("ni").value}});sessionStorage.setItem("tok",r.token);$("ce").className="ok";$("ce").textContent="✓ Password updated";["o","ni","n1","n2"].forEach(i=>$(i).value="");$("warn").classList.add("hide")}catch(e){$("ce").className="err";$("ce").textContent=e.message}};
+if(sessionStorage.getItem("tok"))start();
+</script></body></html>

@@ -1,0 +1,33 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Report – Uttar Aloicherra Jame Masjid</title><link rel="icon" href="assets/logo.svg"><link rel="stylesheet" href="assets/style.css">
+<style>.bar{transform-box:fill-box;transform-origin:bottom;animation:gr .9s both}.hb{transform-box:fill-box;transform-origin:left;animation:gh .9s both}
+@keyframes gr{from{transform:scaleY(0)}}@keyframes gh{from{transform:scaleX(0)}}svg text{font:11px system-ui;fill:#66756d}.lg i{display:inline-block;width:10px;height:10px;border-radius:2px;margin:0 4px 0 10px}
+.back{position:absolute!important;top:12px;left:12px;z-index:5;background:#0f6b4a;color:#fff;padding:9px 14px;border-radius:10px;text-decoration:none;font-weight:600}</style></head><body>
+<div class="sky hero" id="sky" style="padding-bottom:70px"><a class="back" href="index.html">← Home</a><img src="assets/logo.svg" alt=""><h1>Transparency Report</h1><p>Uttar Aloicherra Jame Masjid · Aloicherra Part 4, 788165</p></div>
+<main style="max-width:980px;margin:-30px auto 0;padding:0 14px 30px;position:relative;z-index:5"><div id="out"><div class="card">Loading report…</div></div></main>
+<script src="assets/common.js"></script>
+<script>
+sky($("sky"));
+const short=k=>new Date(k+"-01").toLocaleString("en",{month:"short"})+" "+k.slice(2,4);
+(async()=>{let ms;try{ms=(await api("report")).members}catch(e){$("out").innerHTML='<div class="card err">Could not load report.</div>';return}
+ const R=ms.map(d=>({d,c:calc(d)})),col={},keys=[];
+ let tot=0,mo=0,dn=0,pend=0;
+ R.forEach(({d,c})=>{pend+=Math.max(0,c.bal);d.payments.forEach(p=>{tot+=p.amt;const k=p.date.slice(0,7);col[k]=col[k]||{m:0,d:0};if(p.purpose==="monthly"){mo+=p.amt;col[k].m+=p.amt}else{dn+=p.amt;col[k].d+=p.amt}})});
+ let[y,m]=curKey.split("-").map(Number);for(let i=0;i<12;i++){keys.unshift(y+"-"+String(m).padStart(2,"0"));if(--m<1){m=12;y--}}
+ const mx=Math.max(1,...keys.map(k=>(col[k]?.m||0)+(col[k]?.d||0))),bw=600/12;
+ const bars=keys.map((k,i)=>{const a=col[k]?.m||0,b=col[k]?.d||0,ha=a/mx*190,hb=b/mx*190,x=i*bw+8;
+  return`<rect class="bar" x="${x}" y="${210-ha}" width="${bw-16}" height="${ha}" fill="#0f6b4a" style="animation-delay:${i*.05}s"><title>${short(k)} monthly ${INR(a)}</title></rect><rect class="bar" x="${x}" y="${210-ha-hb}" width="${bw-16}" height="${hb}" fill="#c9a227" style="animation-delay:${i*.05}s"><title>${short(k)} donations ${INR(b)}</title></rect><text x="${x+(bw-16)/2}" y="228" text-anchor="middle">${short(k).split(" ")[0]}</text>`}).join("");
+ const due=mo+pend,pc=due?mo/due:0,C=2*Math.PI*60;
+ const top=R.filter(r=>r.c.bal>0).sort((a,b)=>b.c.bal-a.c.bal).slice(0,8),tm=Math.max(1,top[0]?.c.bal||1);
+ const hbars=top.map((r,i)=>`<text x="0" y="${i*30+14}">#${esc(r.d.serial)} ${esc(r.d.name).slice(0,18)}</text><rect class="hb" x="130" y="${i*30+3}" width="${r.c.bal/tm*250}" height="16" rx="4" fill="#b3261e" style="animation-delay:${i*.08}s"/><text x="${136+r.c.bal/tm*250}" y="${i*30+15}">${INR(r.c.bal)}</text>`).join("");
+ $("out").innerHTML=`<div class="grid">${[["👥","Total Members",ms.length],["💰","Total Collected",tot,1],["📅","Monthly Subscriptions",mo,1],["🤲","Donations",dn,1],["⏳","Total Pending",pend,1]].map(s=>`<div class="card" style="margin:0"><div style="font-size:24px">${s[0]}</div><div class="mut">${s[1]}</div><div class="big ${s[1]=="Total Pending"?"bad":""}" data-v="${s[2]}" data-m="${s[3]||""}">0</div></div>`).join("")}</div>
+ <div class="row" style="flex-wrap:wrap;margin-top:14px"><div class="card" style="flex:2 1 380px"><h2>Collection – last 12 months</h2><div class="lg mut"><i style="background:#0f6b4a"></i>Monthly subscription<i style="background:#c9a227"></i>Donations</div><svg viewBox="0 0 600 236" width="100%">${bars}<line x1="0" y1="210" x2="600" y2="210" stroke="#e3dcc3"/></svg></div>
+ <div class="card" style="flex:1 1 220px;text-align:center"><h2>Subscriptions: Paid vs Pending</h2><svg viewBox="0 0 160 160" width="190"><circle cx="80" cy="80" r="60" fill="none" stroke="#b3261e" stroke-width="22"/><circle cx="80" cy="80" r="60" fill="none" stroke="#0f6b4a" stroke-width="22" stroke-dasharray="${C*pc} ${C}" transform="rotate(-90 80 80)" style="animation:gd 1.2s both"/><text x="80" y="86" text-anchor="middle" style="font:bold 20px system-ui;fill:#1d2b24">${Math.round(pc*100)}%</text></svg><div class="mut"><b class="ok">${INR(mo)}</b> paid · <b class="bad">${INR(pend)}</b> pending</div></div></div>
+ <div class="card"><h2>Highest pending members</h2>${top.length?`<svg viewBox="0 0 560 ${top.length*30}" width="100%">${hbars}</svg>`:'<div class="ok">No pending dues 🎉</div>'}</div>
+ <div class="card"><h2>Monthly collection (text)</h2><div class="scroll"><table><tr><th>Month</th><th>Subscriptions</th><th>Donations</th><th>Total</th></tr>${keys.slice().reverse().map(k=>`<tr><td>${mLabel(k)}</td><td>${INR(col[k]?.m)}</td><td>${INR(col[k]?.d)}</td><td><b>${INR((col[k]?.m||0)+(col[k]?.d||0))}</b></td></tr>`).join("")}</table></div></div>
+ <div class="card"><h2>All members</h2><div class="row"><input id="q" placeholder="Search name or serial"><label style="margin:0;display:flex;align-items:center;gap:6px;flex:0 0 150px"><input type="checkbox" id="po" style="width:auto"> Pending only</label></div><div class="scroll" id="tb" style="margin-top:8px"></div></div>`;
+ $("out").querySelectorAll("[data-v]").forEach(e=>countUp(e,+e.dataset.v,e.dataset.m));
+ const draw=()=>{const q=$("q").value.toLowerCase(),po=$("po").checked;
+  $("tb").innerHTML=`<table><tr><th>Serial</th><th>Name</th><th>Monthly Fee</th><th>Paid</th><th>Pending</th><th>Months due</th><th>Status</th></tr>${R.filter(r=>(r.d.serial+r.d.name).toLowerCase().includes(q)&&(!po||r.c.bal>0)).sort((a,b)=>b.c.bal-a.c.bal).map(({d,c})=>`<tr><td>${esc(d.serial)}</td><td>${esc(d.name)}</td><td>${INR(c.fee)}</td><td>${INR(c.paid)}</td><td class="${c.bal>0?"bad":"ok"}">${INR(Math.max(0,c.bal))}</td><td>${c.bal>0?Math.ceil(c.bal/c.fee):0}</td><td class="${c.bal>0?"bad":"ok"}">${c.bal>0?"Pending":"Clear"}</td></tr>`).join("")}</table>`};
+ $("q").oninput=draw;$("po").onchange=draw;draw()})();
+</script><style>@keyframes gd{from{stroke-dasharray:0 400}}</style></body></html>

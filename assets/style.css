@@ -1,0 +1,27 @@
+:root{--g:#0f6b4a;--g2:#1a8f63;--gold:#c9a227;--bg:#fbf8ef;--tx:#1d2b24;--mut:#66756d;--bd:#e3dcc3;--bad:#b3261e;--ok:#1b7a43}
+*{box-sizing:border-box}
+body{margin:0;font:16px/1.45 system-ui,"Segoe UI",sans-serif;color:var(--tx);background:var(--bg) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='60'%3E%3Cpath d='M30 4l6 14 14-6-6 14 14 6-14 6 6 14-14-6-6 14-6-14-14 6 6-14-14-6 14-6-6-14 14 6z' fill='none' stroke='%23c9a227' stroke-opacity='.2'/%3E%3C/svg%3E");padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom)}
+button,input,select{font:inherit}
+button{background:var(--g);color:#fff;border:0;border-radius:10px;padding:10px 14px;cursor:pointer;font-weight:600;transition:transform .15s,background .2s}
+button:hover{background:var(--g2);transform:translateY(-1px)}
+button.s{background:#fff;color:var(--g);border:1px solid var(--g)}button.d{background:#fff;color:var(--bad);border:1px solid var(--bad);padding:6px 10px}
+input,select{width:100%;padding:10px;border:1px solid var(--bd);border-radius:10px;background:#fff;color:var(--tx)}
+label{display:block;font-size:13px;color:var(--mut);margin:10px 0 4px}
+.card{background:#fff;border:1px solid var(--bd);border-top:3px solid var(--gold);border-radius:14px;padding:14px;margin-bottom:14px;box-shadow:0 4px 14px #0f6b4a14;animation:up .5s both}
+.row{display:flex;gap:10px}.row>*{flex:1}.mut{color:var(--mut);font-size:13px}.big{font-size:26px;font-weight:700}
+.bad{color:var(--bad)}.ok{color:var(--ok)}.hide{display:none!important}.err{color:var(--bad);font-size:14px;margin-top:8px}
+.scroll{overflow-x:auto}table{width:100%;border-collapse:collapse;font-size:14px}td,th{padding:8px 6px;border-bottom:1px solid var(--bd);text-align:left;white-space:nowrap}th{color:var(--g)}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin:10px 0}.grid>div{background:#f4faf6;border-radius:12px;padding:12px;border:1px solid #d7ece0}
+h2{margin:0 0 8px;font-size:18px;color:var(--g)}
+.sky{position:relative;overflow:hidden;background:linear-gradient(#d9f0e4,#fff6d9 85%);text-align:center}
+.sky>*{position:relative;z-index:2}.sky .star,.sky .moon,.sky .lantern,.sky .skyline{position:absolute;z-index:1}
+.star{width:5px;height:5px;background:var(--gold);transform:rotate(45deg);animation:tw 3s infinite}
+.moon{right:12%;top:14%;width:46px;height:46px;border-radius:50%;box-shadow:-14px 6px 0 0 var(--gold);animation:fl 5s ease-in-out infinite}
+.lantern{top:-6px;width:26px;height:40px;border-radius:12px 12px 14px 14px;background:linear-gradient(#ffe082,#c9a227);box-shadow:0 0 18px #ffca2899;transform-origin:50% -20px;animation:sw 3.5s ease-in-out infinite}
+.lantern:before{content:"";position:absolute;left:12px;top:-30px;width:2px;height:30px;background:var(--gold)}
+.skyline{left:0;bottom:0;width:100%;height:70px;opacity:.9}.win{fill:#ffd54f;animation:gl 2.5s infinite}
+.hero{padding:22px 12px 80px}.hero img{width:84px;height:84px;animation:fl 4s ease-in-out infinite;filter:drop-shadow(0 4px 8px #0f6b4a55)}
+.hero h1{margin:6px 0 0;font-size:24px;color:var(--g)}.hero p{margin:2px 0 0;color:var(--mut)}
+@keyframes tw{50%{opacity:.15;transform:rotate(45deg) scale(.5)}}@keyframes fl{50%{transform:translateY(-6px)}}
+@keyframes sw{50%{transform:rotate(9deg)}0%,100%{transform:rotate(-9deg)}}@keyframes gl{50%{opacity:.35}}
+@keyframes up{from{opacity:0;transform:translateY(14px)}}

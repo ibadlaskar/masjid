@@ -1,0 +1,30 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Uttar Aloicherra Jame Masjid</title><link rel="icon" href="assets/logo.svg"><link rel="stylesheet" href="assets/style.css"></head><body>
+<div class="sky hero" id="sky"><a href="report.html" style="position:absolute!important;top:12px;right:12px;z-index:5;background:#0f6b4a;color:#fff;padding:9px 14px;border-radius:10px;text-decoration:none;font-weight:600;box-shadow:0 3px 8px #0f6b4a55">📊 Report</a><img src="assets/logo.svg" alt=""><h1>Uttar Aloicherra Jame Masjid</h1><p>Aloicherra Part 4, 788165 · Monthly Fee Portal</p></div>
+<main style="max-width:640px;margin:-40px auto 0;padding:0 14px 30px;position:relative;z-index:5">
+<div class="card"><label for="sn" style="margin-top:0">Enter your Serial Number</label>
+<div class="row"><input id="sn" placeholder="e.g. 101"><button id="go" style="flex:0 0 100px">Search</button></div><div id="err" class="err"></div></div>
+<div id="res"></div></main>
+<script src="assets/common.js"></script>
+<script>
+sky($("sky"));
+async function go(){const s=$("sn").value.trim();$("err").textContent="";$("res").innerHTML="";if(!s)return;
+ try{show(await api("member?serial="+encodeURIComponent(s)))}catch(e){$("err").textContent=e.status==404?"No record found for this serial number. Please contact the committee.":"Could not load. Try again."}}
+let D,C;
+function show(d){D=d;C=calc(d);
+ $("res").innerHTML=`<div class="card"><div class="mut">Serial #${esc(d.serial)}</div><div class="big">${esc(d.name)}</div>
+ <div class="mut">Monthly fee ${INR(C.fee)} · Current month: <b>${mLabel(curKey)}</b></div>
+ <div class="grid"><div><div class="mut">Pending (previous months)</div><div class="big ${C.arrears?"bad":"ok"}">${INR(C.arrears)}</div></div>
+ <div><div class="mut">To pay this month</div><div class="big ${C.cur?"bad":"ok"}">${INR(C.cur)}</div></div>
+ <div><div class="mut">Total payable now</div><div class="big">${INR(Math.max(0,C.bal))}</div></div>
+ <div><div class="mut">Total paid (monthly)</div><div class="big ok">${INR(C.paid)}</div></div></div>
+ ${C.bal<=0?`<b class="ok">All dues clear ✓${C.adv?" (advance "+INR(C.adv)+")":""}</b>`:""}</div>
+ <div class="card"><h2>Month-wise Status</h2><div class="scroll"><table><tr><th>Month</th><th>Paid</th><th>Due</th><th>Status</th><th>Receipt</th></tr>
+ ${C.rows.slice().reverse().map((r,i)=>`<tr><td>${mLabel(r.k)}</td><td>${INR(r.paid)}</td><td>${INR(r.due)}</td><td class="${r.due?"bad":"ok"}">${r.due?(r.paid?"Partial":"Unpaid"):"Paid"}</td>
+ <td>${r.by?`<button class="s" onclick="mr(${C.rows.length-1-i})">⬇ Receipt</button>`:"–"}</td></tr>`).join("")}</table></div></div>
+ <div class="card"><h2>All Payment Records</h2>${C.all.length?`<div class="scroll"><table><tr><th>Date</th><th>Purpose</th><th>Amount</th><th>Receipt</th></tr>
+ ${C.all.slice().reverse().map(p=>`<tr><td>${p.date}</td><td>${PUR[p.purpose]}</td><td>${INR(p.amt)}</td><td><button class="s" onclick="pr('${p.id}')">⬇ Receipt</button></td></tr>`).join("")}</table></div>`:'<div class="mut">No payments yet.</div>'}</div>`}
+const mr=i=>{const r=C.rows[i];receipt({no:r.by.id,name:D.name,serial:D.serial,amt:C.fee,date:r.by.date,purpose:"Monthly Subscription – "+mLabel(r.k)})};
+const pr=id=>{const p=C.all.find(x=>x.id===id);receipt({no:p.id,name:D.name,serial:D.serial,amt:p.amt,date:p.date,purpose:PUR[p.purpose]+(p.note?" – "+p.note:"")})};
+$("go").onclick=go;$("sn").onkeydown=e=>{if(e.key==="Enter")go()};
+</script></body></html>
